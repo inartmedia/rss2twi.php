@@ -1,5 +1,5 @@
 defaults: 
-    shortener: liipto
-    maxurllength: 30
-    prefix: ''
-    maxposts: 5
+    shortener: gwgd
+    maxurllength: 10
+    prefix: '#job'
+    maxposts: 15

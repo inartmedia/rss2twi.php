@@ -1,6 +1,6 @@
 <?php
 
-class r2t_shortener_isgd {
+class r2t_shortener_gwgd {
 
     protected $apiurl = 'http://gw.gd/api.php?format=text&long=';
     function __construct() {
