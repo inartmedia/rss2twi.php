@@ -35,6 +35,10 @@ class r2t {
             $newentries = $this->getNewEntries($feedname, $options['url']);
             $cnt = 1;
             foreach ($newentries as $guid => $e) {
+		#adding the filter option, see filter example in conf/feeds.yml-dist
+		$filter=$options['filter'];
+		$filter="/$filter/i";
+		if ( preg_match($filter, $e['title'] ) != 0 ) continue;
                 try {
                     $options = $this->twit($e, $options);
                 } catch (Exception $e) {
