@@ -38,7 +38,7 @@ class r2t {
 		#adding the filter option, see filter example in conf/feeds.yml-dist
 		$filter=$options['filter'];
 		$filter="/$filter/i";
-		if ( preg_match($filter, $e['title'] ) != 0 ) continue;
+		if ( preg_match($filter, $entry['title'] ) != 0 ) continue;
                 try {
                     $options = $this->twit($entry, $options);
                 } catch (Exception $e) {
