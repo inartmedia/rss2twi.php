@@ -34,17 +34,17 @@ class r2t {
             $options = $this->mergeOptionsWithDefaults($options);
             $newentries = $this->getNewEntries($feedname, $options['url']);
             $cnt = 1;
-            foreach ($newentries as $guid => $e) {
+            foreach ($newentries as $guid => $entry) {
 		#adding the filter option, see filter example in conf/feeds.yml-dist
 		$filter=$options['filter'];
 		$filter="/$filter/i";
 		if ( preg_match($filter, $e['title'] ) != 0 ) continue;
                 try {
-                    $options = $this->twit($e, $options);
+                    $options = $this->twit($entry, $options);
                 } catch (Exception $e) {
                     $entries = sfYAML::Load(R2T_TEMP_DIR . "/$feedname");
                     
-                    print "Couldn't post " . $entry['title'] . " " . $entry['link'] . " due to " . $e->getMessage();
+                    print "Couldn't post " . $entry['title'] . " " . $entry['link'] . " due to " . $e->getMessage() . "\n";
                     unset ($entries[$guid]);
                     unset ($newentries[$guid]);
                     file_put_contents(R2T_TEMP_DIR . "/$feedname", sfYaml::dump($entries));
@@ -112,8 +112,13 @@ class r2t {
             }
         }
         
-        
-        $msg = $entry['title'] . " " . $entry['link'];
+        $msg = $entry['title'];
+
+        if ($options['addAuthor'] ) {
+            $msg .= " - " . preg_replace("/[^\s]+@[^\s]+/","",$entry['author']);
+        }
+        $msg .= " " . $entry['link'];
+        $msg = preg_replace("/[\s]{2,}/"," ",$msg);
         if (isset($options['prefix'])) {
             $msg = $options['prefix'] . " " . $msg;
         }
@@ -145,7 +150,7 @@ class r2t {
             $service = new Services_Twitter($options['twitter']['user'], $options['twitter']['pass']);
             $service->statuses->update($msg);
         }
-        $this->debug("prowlApiKey: " . $options['prowlApiKey']);
+        $this->debug("prowlApiKey: " . (isset($options['prowlApiKey']) ? $options['prowlApiKey'] : 'unset'));
         if (!empty($options['prowlApiKey'])) {
             include_once('ProwlPHP/ProwlPHP.php');
             $prowl = new Prowl($options['prowlApiKey']);
@@ -216,7 +221,8 @@ class r2t {
             }
             $e = array(
             "link" => $entry->link,
-            "title" => $entry->title
+            "title" => $entry->title,
+            "author" => $entry->author
             );
             if(!$entry->guid) {
                 $entry->guid = $entry->link;
